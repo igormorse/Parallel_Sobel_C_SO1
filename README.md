@@ -4,3 +4,5 @@
 
 * Compilação: **gcc sobel.c libimg.c -o sobel -lm**
 * Execução: **./sobel imgInput imgOutput**
+
+# Teste de Pull
