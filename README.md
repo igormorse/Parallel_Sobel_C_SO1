@@ -3,5 +3,4 @@
 # Como compilar o Algorítmo de Sobel
 
 * Compilação: **gcc sobel.c libimg.c -o sobel -lm**
-* Execução: ./sobel <imgInput> <imgOutput>
-
+* Execução: **./sobel imgInput imgOutput**
