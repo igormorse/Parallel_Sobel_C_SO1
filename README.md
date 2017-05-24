@@ -5,4 +5,9 @@
 * Compilação: **gcc sobel.c libimg.c -o sobel -lm**
 * Execução: **./sobel imgInput imgOutput**
 
-# Teste de Pull
+# Importante
+
+Manter a Máquina Virtual ligada quando estiver utilizando o GIT. Pois ela entra em IDLE depois de um tempo
+e não sincroniza automaticamente.
+
+Se preferir pode dar um **git pull** no **Bash**.
