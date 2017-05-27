@@ -44,9 +44,14 @@ int main(int argc, char **argv)
     fclose(fp);
 #endif
 
+
+    // Memória Compartilhada.
+    // ppm_pmage = * image_t
     ppm_image image_sobel = alloc_img(image->width + 2, image->height + 2);
+    
     fill_img(image_sobel,0,0,0);
 
+    // Dividir entre processos.
     unsigned int i, j;
     for(i = 0 ; i < image_sobel->width ; i++)
     {
@@ -67,10 +72,13 @@ int main(int argc, char **argv)
         }
     }
 
-    to_greyscale(image_sobel);
+    // Pai pinta a imagem em tons de cinza.
+    //to_greyscale(image_sobel);
 
     ppm_image res;
+    
     res = alloc_img(image_sobel->width, image_sobel->height);
+    
     if(res == NULL)
     {
         fprintf(stderr,"error, cannot allocate sobel image\n");
