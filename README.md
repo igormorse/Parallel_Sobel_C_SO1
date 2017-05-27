@@ -7,9 +7,9 @@
 
 ### Utilizar o Script em PHP
 
-`php makeSobel.php <imgInput> <imgOutput:`
+`php makeSobel.php <imgInput> <imgOutput>`
 
-imgInput e imgOutput são opcionais, se não forem fornecidos ele utiliza, escola_artes_visuais.ppm.
+imgInput e imgOutput são opcionais, se não forem fornecidos ele utiliza, **escola_artes_visuais.ppm**.
 
 # Importante
 
