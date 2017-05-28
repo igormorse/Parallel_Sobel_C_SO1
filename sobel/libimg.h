@@ -31,6 +31,7 @@ void sobel_filter(ppm_image img, ppm_image sobel_img);
 void output_ppm(FILE *fd, ppm_image img);
 ppm_image get_ppm(FILE *pf);
 ppm_image alloc_img(unsigned int width, unsigned int height);
+void setup_img(ppm_image img,unsigned int width, unsigned int height);
 void free_img(ppm_image);
 void fill_img(ppm_image img,
         color_component r,

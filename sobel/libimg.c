@@ -1,5 +1,14 @@
 #include "libimg.h"
 
+void setup_img(ppm_image img,unsigned int width, unsigned int height)
+{
+    img->buf = malloc(width * height * sizeof(pixel));
+    img->width = width;
+    img->height = height;
+    img->high = 0;
+    img->max_color = 255; //default
+}
+
 ppm_image alloc_img(unsigned int width, unsigned int height)
 {
     ppm_image img;

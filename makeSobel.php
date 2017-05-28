@@ -20,10 +20,16 @@ else
     $defaultInput = "data/$arg[0].ppm";
 
 if (empty($arg[1]))
-    $defaultOutput = "output/{$defaultImage}_$now.ppm";
+    $defaultOutput = "output/{$defaultImage}_$now";
 else
-    $defaultOutput = "output/{$arg[1]}_$now.ppm";
+    $defaultOutput = "output/{$arg[1]}_$now";
 
-$output = `./sobel $defaultInput $defaultOutput`;
+$ppmOutput = "$defaultOutput.ppm";
+
+$output = `./sobel $defaultInput $ppmOutput`;
+
+$jpgOutput = "$defaultOutput.jpg";
+
+echo `convert $ppmOutput $jpgOutput`;
 
 die($output);

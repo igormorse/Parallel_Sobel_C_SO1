@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     */
 
     // Pede o Id da memóra Compartilhada com o tamanho da Imagem.
-    shmId = shmget(IPC_PRIVATE, image->width * image->height * sizeof(pixel), IPC_CREAT | 0666);
+    shmId = shmget(IPC_PRIVATE, sizeof(image_t), IPC_CREAT | 0666);
     
     if (shmId < 0) {
       printf("*** shmget error ***\n");
@@ -73,28 +73,35 @@ int main(int argc, char **argv)
     
     */
     
+       // Associa o ponteiro para a memória compartilhada.
+    image_sobel = (ppm_image) shmat(shmId, 0, 0);
+  
+    // image_sobel = alloc_img(image->width + 2, image->height + 2);
+  
+    // Aloca no Endereço da Memória Compartilhada a Imagem.
+    setup_img(image_sobel,image->width + 2, image->height + 2);
+    
+     // Isso aqui não sei o que faz mas deixa aqui.
+    fill_img(image_sobel,0,0,0);
+    
     // Realiza o Fork.
     pid = fork();
     
-             
-    // Associa o ponteiro para a memória compartilhada.
-    image_sobel = (ppm_image) shmat(shmId, NULL, 0);
-  
-    // Aloca no Endereço da Memória Compartilhada a Imagem.
-    image_sobel = alloc_img(image->width + 2, image->height + 2);
-    
-    
-   
-    
+    // exit(0);
 
     if (pid < 0)
         printf("HOUVE UM ERRO AO REALIZAR O FORK!");
     else if (pid == 0){
-        // Isso aqui não sei o que faz mas deixa aqui.
-        fill_img(image_sobel,0,0,0);
+      
+        printf("\nEndereco Filho: %p\n", image_sobel);
+        printf("\nEndereço Buffer Filho: %p\n", image_sobel->buf);
+        fflush(stdout);
         childProcess(image,image_sobel,1);
     }
     else{
+        printf("\nEndereco Pai: %p\n", image_sobel);
+        printf("\nEndereço Buffer Pai: %p\n", image_sobel->buf);
+        fflush(stdout);
         parentProcess(outputFilePath,image_sobel,pid);
     }
         
@@ -132,10 +139,11 @@ ppm_image readImageFromFile(char * filePath){
 
 void childProcess(ppm_image image, ppm_image image_sobel,int identifier){
     
-      // Dividir entre processos o Loop a seguir.
+    // Dividir entre processos o Loop a seguir.
     unsigned int i, j;
     for(i = 0 ; i < image_sobel->width ; i++)
     {
+       
         for(j = 0 ; j < image_sobel->height ; j++){
             if((i == 0) || (i == (image_sobel->width-1)))
             {
@@ -151,11 +159,21 @@ void childProcess(ppm_image image, ppm_image image_sobel,int identifier){
             }
         }
     }
+    
+    printf("\nTERMINEI O FOR!\n\n");
+    
+    fflush(stdout);
 }
 
 void parentProcess(char * outputFilePath,ppm_image image_sobel,pid_t pIdentifier){
     
+    printf("\nESPERANDO PELO FILHO!\n\n");
+    fflush(stdout);
+    
     wait(NULL);
+    
+    printf("\nTERMINEI DE ESPERAR!\n\n");
+    fflush(stdout);
     
     // Pai pinta a imagem em tons de cinza.
     to_greyscale(image_sobel);
