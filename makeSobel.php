@@ -1,5 +1,8 @@
 <?php
 
+// Define o TimeZone para o do Brasil.
+date_default_timezone_set("Brazil/East");
+
 chdir(sobel);
 
 echo `gcc sobel.c libimg.c -o sobel -lm`;
