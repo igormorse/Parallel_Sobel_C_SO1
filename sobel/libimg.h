@@ -27,11 +27,18 @@ float packColor(color_component r, color_component g, color_component b);
 void unpackColor(float f, color_component *r, color_component *g, color_component *b);
 
 void to_greyscale(ppm_image);
+
 void sobel_filter(ppm_image img, ppm_image sobel_img);
+void sobel_filter_at(ppm_image img, ppm_image sobel_img, int startWidth, int startHeight, int endWidth, int endHeight);
+
 void output_ppm(FILE *fd, ppm_image img);
 ppm_image get_ppm(FILE *pf);
+
 ppm_image alloc_img(unsigned int width, unsigned int height);
+
 void setup_img(ppm_image img,unsigned int width, unsigned int height);
+void setup_shared_img(ppm_image img,unsigned int width, unsigned int height);
+
 void free_img(ppm_image);
 void fill_img(ppm_image img,
         color_component r,

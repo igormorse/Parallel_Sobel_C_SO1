@@ -13,23 +13,31 @@ $now = $now->format('Y-m-d_H-i-s');
 
 $defaultImage = "escola_artes_visuais";
 
+$numWorkers = 4;
 
-if (empty($arg[0]))
-    $defaultInput = "data/$defaultImage.ppm";
-else 
-    $defaultInput = "data/$arg[0].ppm";
+$defaultInput = "data/$defaultImage.ppm";
+$defaultOutput = "output/{$defaultImage}_$now";
 
-if (empty($arg[1]))
-    $defaultOutput = "output/{$defaultImage}_$now";
-else
-    $defaultOutput = "output/{$arg[1]}_$now";
+if (!empty($argv[1]) && is_numeric($argv[1]))
+    $numWorkers = $argv[1];
+else if (!empty($argv[1]))
+    $defaultInput = "data/$argv[1].ppm";
+
+if (empty($argv[2]) && !empty($argv[1]) && !is_numeric($argv[1]))
+    $defaultOutput = "output/{$argv[1]}_$now";
+else if (!empty($argv[2]))
+    $defaultOutput = "output/{$argv[2]}_$now";
 
 $ppmOutput = "$defaultOutput.ppm";
 
-$output = `./sobel $defaultInput $ppmOutput`;
+$output = `./sobel $defaultInput $ppmOutput $numWorkers`;
 
 $jpgOutput = "$defaultOutput.jpg";
 
+echo "\n\n------------ IMAGE CONVERT PPM TO JPG BEGIN ----------------------\n\n";
+
 echo `convert $ppmOutput $jpgOutput`;
+
+echo "\n\n------------ IMAGE CONVERT PPM TO JPG ENDED ----------------------\n\n";
 
 die($output);
