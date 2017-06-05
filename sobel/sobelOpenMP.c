@@ -21,7 +21,7 @@ void proccess_image_pixels(ppm_image image, ppm_image image_sobel);
 void printFlushed(char *, ...);
 ppm_image readImageFromFile(char *);
 
-void threadProcess(char *,ppm_image,ppm_image,int ,int , int , int , int );
+void threadProcess(ppm_image,ppm_image,int ,int , int , int , int );
 void image_save(char *,ppm_image);
 
 struct timeval tval_before, tval_after, tval_result;
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
     // separa a largura que vai ser processada por cada workers
     int width_thread = image_sobel->width/numWorkers;
     
-    //printFlushed("Vezes qtd %d ,Tela = %d\n", width_thread,image_sobel->width);
-    int nthreads, tid;
+    // Thread Id;
+    int tid;
     
     // Seta o numero de thread necessitada
     omp_set_num_threads(numWorkers);
@@ -96,16 +96,7 @@ int main(int argc, char **argv)
             printFlushed("Inicio : %d , FIM : %d ,Thread = %d\n", 1 + (tid * width_thread),width_thread + 1 +  (tid * width_thread) ,tid);
         
         // Chamada do processamento do filtro
-        threadProcess(outputFilePath,image_sobel,image_res,tid,1 + (tid * width_thread),1,width_thread + 1 +  (tid * width_thread),image_sobel->height);
-        
-        // TId da thread corrente
-        //printFlushed("Hello World from thread = %d\n", tid);
-        
-        // Only master thread does this */
-        /*if (tid == 0) {
-            nthreads = omp_get_num_threads();
-            printFlushed("Number of threads = %d\n", nthreads);
-        }*/
+        threadProcess(image_sobel,image_res,tid,1 + (tid * width_thread),1,width_thread + 1 +  (tid * width_thread),image_sobel->height);
     }
     
     // Salva a imagem depois do sobel
@@ -178,7 +169,7 @@ void proccess_image_pixels(ppm_image image, ppm_image image_sobel){
     
 }
 
-void threadProcess(char * outputFilePath,ppm_image image_sobel,ppm_image image_res,int tid,int startWidth, int startHeight, int endWidth, int endHeight)
+void threadProcess(ppm_image image_sobel,ppm_image image_res,int tid,int startWidth, int startHeight, int endWidth, int endHeight)
 {
     if(image_res == NULL)
     {
