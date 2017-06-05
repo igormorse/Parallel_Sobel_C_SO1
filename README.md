@@ -9,7 +9,9 @@
 
 `php makeSobel.php <imgInput> <imgOutput>` 
 
-`php makeSobelOpen.php <imgInput> <imgOutput>` ** Executar o sobel em openMp **
+`php makeSobelOpenMP.php <imgInput> <imgOutput>` ** Executar o sobel em openMp **
+
+`php makeSobel.php <numWorkers>` ** Executar com um número variado de Trabalhadores. **
 
 imgInput e imgOutput são opcionais, se não forem fornecidos ele utiliza, **escola_artes_visuais.ppm**.
 

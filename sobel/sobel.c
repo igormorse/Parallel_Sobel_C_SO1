@@ -5,6 +5,9 @@
 #include    <sys/shm.h>
 #include    <string.h>
 #include    <stdarg.h>
+#include    <sys/time.h>
+#include    <unistd.h>
+#include    <stdint.h>
 
 #define TRUE (0==0)
 #define FALSE (0==1)
@@ -21,6 +24,8 @@ void proccess_image_pixels(ppm_image image, ppm_image image_sobel);
 
  // Número de Processos "Trabalhadores".
 int numWorkers;
+
+struct timeval tval_before, tval_after, tval_result;
 
 int main(int argc, char **argv)
 {
@@ -87,11 +92,20 @@ int main(int argc, char **argv)
     
     // Pai pinta a imagem em tons de cinza.
     to_greyscale(image_sobel);
+
+    /*
+    
+        A Partir daqui a o Pai Realiza o Fork de Vários Filhos e assim começa a contar o tempo de execução até o término.
+        
+        O número de filhos depende de numWorkers.
+    
+    */
+    
+    // Inicio do Timer.
+    gettimeofday(&tval_before, NULL);
     
     int i = 0;
-    
     for (i = 0 ; i < numWorkers ; i++){
-    
     
         // Realiza o Fork.
         pid = fork();
@@ -105,33 +119,26 @@ int main(int argc, char **argv)
             childProcess(image,image_sobel,i);
             break;
         }
-        
-        // Imprime o PID do Processo.
-        printFlushed("\n Parent PID: %d\n", pid);
     }
-    
-    // Imprime os Filhos.
-    if (pid == 0)
-        printFlushed("\n\nNumber of Childs: %d / %d\n",i+1,numWorkers);
   
     if (pid > 0 ){
         
         parentProcess(outputFilePath,image_sobel,pid);
+        
+         /* detach from the segment: */
+        if (shmdt(image_sobel->buf) == -1) {
+            perror("*** shmdt error ***\n");
+            exit(1);
+        }
         
         /* detach from the segment: */
         if (shmdt(image_sobel) == -1) {
             perror("*** shmdt error ***\n");
             exit(1);
         }
-        
-        /* detach from the segment: */
-        if (shmdt(image_sobel->buf) == -1) {
-            perror("*** shmdt error ***\n");
-            exit(1);
-        }
     }
-        
-    exit(0);
+    
+    return 0;
 }
 
 // Realiza a Leitura de um Arquivo de Imagem para dados.
@@ -219,8 +226,10 @@ void childProcess(ppm_image image, ppm_image image_sobel, int identifier){
         endWidth = widthChunk*((identifier/2)+1)+1;
     }
     
-    printFlushed("\nFilho :%d\nTamanho da imagem: Width:%d x Height:%d\n\nVou trabalhar de: width:%d x height:%d",identifier,image->width, image->height, startWidth, startHeight);
-    printFlushed("\nVou trabalhar ate: width:%d x height:%d \n",endWidth, endHeight);
+    if (DEBUG == 1){
+        printFlushed("\nFilho :%d\nTamanho da imagem: Width:%d x Height:%d\n\nVou trabalhar de: width:%d x height:%d",identifier,image->width, image->height, startWidth, startHeight);
+        printFlushed("\nVou trabalhar ate: width:%d x height:%d \n",endWidth, endHeight);
+    }
     
     sobel_filter_at(image,image_sobel,startWidth,startHeight,endWidth,endHeight);
 }
@@ -246,7 +255,18 @@ void parentProcess(char * outputFilePath,ppm_image image_sobel,pid_t pIdentifier
     
     fclose(fp);
     
-    printf("output: %s\n",outputFilePath);
+    printFlushed("output: %s\n",outputFilePath);
+    
+    /*
+    
+        Terminado todo o processamento dos Filhos e do Pai, Calcula o tempo total de Execução.
+    
+    */
+    
+    gettimeofday(&tval_after, NULL);
+    timersub(&tval_after, &tval_before, &tval_result);
+    
+    printFlushed("\n\nTime elapsed: %ld.%06ld segundos\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
     
 }
 
