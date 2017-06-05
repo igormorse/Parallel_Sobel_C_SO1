@@ -59,6 +59,8 @@ int main(int argc, char **argv)
     // Pixelagem a imagem
     proccess_image_pixels(image,image_sobel);
     
+    to_greyscale(image_sobel);
+    
     //  aloca a imagem de saída
     ppm_image image_res;
     
@@ -90,7 +92,8 @@ int main(int argc, char **argv)
         // Pega o id atual da thread
         tid = omp_get_thread_num();
         
-        printFlushed("Inicio : %d , FIM : %d ,Thread = %d\n", 1 + (tid * width_thread),width_thread + 1 +  (tid * width_thread) ,tid);
+        if (DEBUG == 1)
+            printFlushed("Inicio : %d , FIM : %d ,Thread = %d\n", 1 + (tid * width_thread),width_thread + 1 +  (tid * width_thread) ,tid);
         
         // Chamada do processamento do filtro
         threadProcess(outputFilePath,image_sobel,image_res,tid,1 + (tid * width_thread),1,width_thread + 1 +  (tid * width_thread),image_sobel->height);
@@ -177,8 +180,6 @@ void proccess_image_pixels(ppm_image image, ppm_image image_sobel){
 
 void threadProcess(char * outputFilePath,ppm_image image_sobel,ppm_image image_res,int tid,int startWidth, int startHeight, int endWidth, int endHeight)
 {
-    to_greyscale(image_sobel);
-
     if(image_res == NULL)
     {
         fprintf(stderr,"error, cannot allocate sobel image\n");

@@ -69,6 +69,8 @@ int main(int argc, char **argv)
     // Pixelagem a imagem
     proccess_image_pixels(image,image_sobel);
     
+    to_greyscale(image_sobel);
+    
     //  aloca a imagem de saída
     image_res = alloc_img(image_sobel->width, image_sobel->height);
     
@@ -89,22 +91,34 @@ int main(int argc, char **argv)
     // Threads.
     pthread_t threads[numWorkers];
     
-    
     int t;
     for(t = 0; t < numWorkers; t++){
         
-        printf("\n\nIniciando Thread: %d\n", t);
+        if (DEBUG == 1)
+            printFlushed("\n\nIniciando Thread: %d\n", t);
         
         // Inicializa as Threads.
-        pthread_create(&threads[t], NULL, paralelizar, (void *) t);
+        int errorCreate = pthread_create(&threads[t], NULL, paralelizar, (void *) t);
+        
+        if (errorCreate != 0){
+            perror("\n\n Nao foi possivel criar mais Threads!\n\n");
+            exit(1);
+        }
     }
     
     printFlushed("\n\nESPERANDO THREADS FILHAS EXECUTAREM!\n\n");
     
     // Realiza a Espera de Todas As Threads Terminarem.
     int i = 0;
-    for (i = 0; i < numWorkers; i++)
-       pthread_join(threads[i], NULL);
+    for (i = 0; i < numWorkers; i++){
+       
+       int errorJoin = pthread_join(threads[i], NULL);
+       
+        if (errorJoin != 0){
+            perror("\n\n Nao foi possivel gerenciar Threads!\n\n");
+            exit(1);
+        }
+    }
        
     printFlushed("\n\nTHREADS FILHAS TERMINADAS, SALVANDO ARQUIVO...\n\n");
     
@@ -128,8 +142,9 @@ int main(int argc, char **argv)
 void * paralelizar(void * threadId){
     
     int tid = (int) threadId;
-        
-    printFlushed("Inicio : %d , FIM : %d ,Thread = %d\n", ( 1 + ( (tid) * width_thread) ), ( width_thread + 1 +  ((tid) * width_thread) ) ,(tid));
+    
+    if (DEBUG == 1)    
+        printFlushed("Inicio : %d , FIM : %d ,Thread = %d\n", ( 1 + ( (tid) * width_thread) ), ( width_thread + 1 +  ((tid) * width_thread) ) ,(tid));
     
     // Chamada do processamento do filtro
     threadProcess(image_sobel,image_res,tid,1 + (tid * width_thread),1,width_thread + 1 +  (tid * width_thread),image_sobel->height);
@@ -191,8 +206,6 @@ void proccess_image_pixels(ppm_image image, ppm_image image_sobel){
 
 void threadProcess(ppm_image image_sobel,ppm_image image_res,int tid,int startWidth, int startHeight, int endWidth, int endHeight)
 {
-    to_greyscale(image_sobel);
-
     if(image_res == NULL)
     {
         fprintf(stderr,"error, cannot allocate sobel image\n");
